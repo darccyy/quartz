@@ -1,0 +1,7 @@
+import "./style" for Style;
+
+export (props:obj) => {
+  return <h1 class="Header">
+    {props.text}
+  </h1>
+}

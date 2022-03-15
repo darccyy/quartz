@@ -1,0 +1,14 @@
+import "./src/App"
+
+export <html>
+  <head>
+    <title>App</title>
+    <link rel="shortcut icon" href="./image/icon.png" />
+  </head>
+  <body>
+    <noscript>No javascript</noscript>
+    <div class="root">
+      <App />
+    </div>
+  </body>
+</html>

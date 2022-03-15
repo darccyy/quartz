@@ -1,0 +1,10 @@
+import "./style" for Style // Style is env var (change)
+
+fun App = () => {
+  str headerText = ENV.config.shortName;
+
+  return <div class="App">
+    <Header text={headerText} />
+  </div>
+}
+export App;
