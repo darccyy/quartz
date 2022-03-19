@@ -1,4 +1,4 @@
-[
+{
   name: "example-app",
   shortName: "Example App",
   longName: "Example App for Testing",
@@ -7,4 +7,4 @@
   version: "1.0.0",
   
   icon: "./public/image/icon.png",
-]
+}

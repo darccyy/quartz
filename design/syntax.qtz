@@ -37,11 +37,11 @@ functionWithCallback((x:int, y:int):int => {
 
 // array and object, similar syntax
 arr<string> e = ["a", "b", "c"];
-obj e = [
+obj e = {
   a: 1,
   b: "b",
   c: (x:int, y:int):int => x + y,
-]; // any type
+}; // any type
 
 arr[0] // a
 arr[-1] // c
@@ -107,25 +107,25 @@ a =% 1 // reverse mod assign
 a =# 1 // reverse concat assign
 
 () // grouping
-[] // arrays, objects
-{} // code scope
+[] // arrays
+{} // object, code scope
 "" // string
 
 print(if (1 == 2) true else false, "`n")
 
 // Module syntax
 // Export file "Module" (only one export)
-obj Module = const [ test: 123 ]
-export Module // Module = Object [ test: 123 ]
-export {CustomName: Module} // CustomName = Object [ test: 123 ]
+obj Module = const { test: 123 }
+export Module // Module = Object { test: 123 }
+export {CustomName: Module} // CustomName = Object { test: 123 }
 export Module.test // test = 123
 export {CustomName: Module.test} // CustomName = 123
 
 // Import file from "./Module" (First export above)
-import "./Module" // Module = Object [ test: 123 ]
-import "./Module" as CustomName // CustomName = Object [ test:123 ]
-import "./Module" as [test] // test = 123
-import "./Module" as [CustomName: test] // CustomName = 123
+import "./Module" // Module = Object { test: 123 }
+import "./Module" as CustomName // CustomName = Object { test:123 }
+import "./Module" as { test } // test = 123
+import "./Module" as { CustomName: test } // CustomName = 123
 
-obj imported = []
-import "./Module" into imported // Adds Module to imported - imported = Object [ Module: [ test: 123 ] ]
+obj imported = {}
+import "./Module" into imported // Adds Module to imported - imported = Object { Module: { test: 123 } }

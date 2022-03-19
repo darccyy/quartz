@@ -1,0 +1,24 @@
+{
+  "name": "quartz",
+  "version": "1.0.0",
+  "description": "",
+  "main": "compile.js",
+  "scripts": {
+    "start": "nodemon"
+  },
+  "nodemonConfig": {
+    "ignore": [
+      "temp/"
+    ]
+  },
+  "keywords": [],
+  "author": "",
+  "license": "ISC",
+  "devDependencies": {
+    "nodemon": "^2.0.15",
+    "ts-node": "^10.7.0"
+  },
+  "dependencies": {
+    "fortissimo": "^0.1.6"
+  }
+}
