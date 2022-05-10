@@ -19,6 +19,6 @@
     "ts-node": "^10.7.0"
   },
   "dependencies": {
-    "fortissimo": "^0.1.6"
+    "fortissimo": "^0.2.9"
   }
 }

@@ -1,2 +1,0 @@
-print(abc, (def + ghi), ((jkl * mno) + pqr)));
-print2(fun(abc, def (1), (2) ghi(), ((((3))))))

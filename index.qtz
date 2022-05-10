@@ -1,0 +1,3 @@
+print(abc, 123, (def + ghi), (pqr + (jkl * mno)));
+print_(abc1, (def1 + ghi1), ((jkl1 * mno1) + pqr1));
+print2(fun(abc2, def2 (1), (2) ghi2(), ((((3))))))

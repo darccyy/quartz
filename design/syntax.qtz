@@ -1,131 +1,322 @@
-// simple data types
+/* simple data types - must use keyword for initial declaration */
 str a = "abc";
+a = "foo"
+a = 123 /* Error */
+var a:str = "abc" /* Alternative */
+var a = "abc" /* Error - undefined type (use any) */
 int b = 123;
+int b = 123; /* Error - already declared */
+delete b; /* Remove declaration */
 float b = 12.3;
-// other bases
+/* (imply delete variable before redeclare for this example) */
+any a = "abc" /* Allows all, even null */
+a = 123 /* No error */
+/* other bases */
 int b = 0101;
 int b = x101;
-// boolean
-bool b = TRUE;
-bool b = FALSE;
-bool b = NULL;
-// immutable
-str immutableString = const "immutable string";
+/* boolean */
+bool b = true;
+bool b = false;
+/* immutable with underscore _ */
+str _immutableString = "immutable string";
+/* null allowed */
+str? b = "foo"; /* foo */
+b = null; /* null */
+b = 123 /* error */
+str? c; /* null */
+str c; /* error (no value, non-null) */
 
-// if
+/* if */
 if (a == b) {
-  print(TRUE, "`n");
+  print(true, "`n");
 }
 
-// loop
-loop (int i = 0; i < 10; i += 1) {
+/* variable scope - all variables are block scoped by default */
+str a = "foo" /* global */
+
+if (condition) {
+  str b = "foo"
+}
+b /* Error - not defined */
+
+str c?
+if (condition) {
+  c = "foo"
+}
+print c /* foo */
+
+str d = "foo"
+if (condition) {
+  str d = "bar" /* different variable due to `str` keyword */
+  print d /* bar - from scoped `d` */
+}
+print d /* foo - from global `d` */
+
+/* loops */
+/* for number */
+for (int i = 0; i < 10; i += 1) {
+  if (i == 4) {
+    skip;
+  }
   print(i, "`n");
+  str next = i + 1;
+  /* Quick concat */
+  print ("number #i`n") /* Default: use str() */
+  print ("number ##i`n") /* Strict: error if not string */
+  print ("number #next`n")
+  print ("number #{next}`n")
+  print ("number ##{str(i + 1)}`n")
+}
+/* for in */
+str text = "abcdef";
+for (char in text) { /* dont need int type (inferred) */
+  if (char == 4 || text[char] == "e") {
+    skip;
+  }
+  print (char, text[char]) /* 0, "a" ... (index is number)*/
+}
+/* while true */
+loop {
+  if (condition) {
+    break
+  }
+}
+/* while */
+str string = ""
+while (string.len < 10) {
+  string #= "."
 }
 
-// function
-fun f = (x:int, y:int):int => {
+/* Throw error */
+throw "What!"
+
+/* function - always immutable */
+fun myFunction (x:int, y:int):int => {
   return x + y;
 }
-f(1, 2); // 3
+myFunction(1, 2); /* 3 */
 
-// one line function
-fun f = (x:int, y:int):int => x + y;
-// callback
+/* one line function */
+fun myFunction (x:int, y:int):int => x + y;
+/* Error, unnecessary equals = */
+fun myFunction = (x:int, y:int):int => x + y;
+/* anonymous */
+(x:int, y:int):int => x + y;
+/* Inside object */
+var obj = {
+  myFunction: (x:int, y:int):int => x + y,
+  myFunction: (x:int, y:int):int => x + y,
+  myFunction: (x:int, y:int):int => {
+    return x + y
+  },
+}
+
+/* callback */
+fun functionWithCallback(cb:=>int) => {
+  int arg1 = 12;
+  int arg2 = 40;
+  print("Callback value: ", cb(arg1, arg2));
+}
+/* :int for return here is redundant, already defined above, ignore */
 functionWithCallback((x:int, y:int):int => {
   return x + y;
 });
+/* Alternative */
+functionWithCallback((x:int, y:int) => x + y);
+functionWithCallback(():str => "a"); /* Error, invalid return type (defined above) */
 
-// array and object, similar syntax
-arr<string> e = ["a", "b", "c"];
-obj e = {
+/* arrays */
+[str] myArray = ["a", "b", "c"];
+str[] myArray = ["a", "b", "c"]; /* Alternative */
+var myArray:str[] = ["a", "b", "c"]; /* Alternative */
+var myArray:[str] = ["a", "b", "c"]; /* Alternative */
+[str]? myArray = null; /* Null optional */
+[str?] myArray = ["a", null, "b"]; /* Item null optional */
+[str?]? myArray = null; /* Both null optional */
+[int] intArray = [1, 4, 8, -1];
+[int|str] multiArray = [1, "a", 4, "b", 8, -1]; /* Int or string */
+[int|str?] multiArray = [1, null, "a", 4, "b", 8, -1]; /* Item null optional */
+
+/* index */
+/* single item */
+myArray[0] /* a */
+myArray[-1] /* c */
+/* single item as array, with alternatives */
+myArray[0:0] /* [a] */
+myArray[::0] /* [a] */
+[myArray[0]] /* [a] */
+myArray[-1:-1] /* [c] */
+myArray[::-1] /* [c] */
+[myArray[-1]] /* [c] */
+/* multiple items */
+myArray[:-1] /* [a, b] */
+myArray[1:-1] /* [b] */
+myArray[1:] /* [b, c] */
+myArray[1:2] /* [b, c] */
+/* everything but index */
+myArray[:1:] /* [a, c] */
+
+/* deconstruction */
+[int] arr = [4, 5, 6];
+int [a, b, c] = arr;
+print("#a #b #c") /* 4, 5, 6 */
+print(a, " ", b, " ", c) /* 4, 5, 6 */
+
+/* objects */
+/* type definition for objects, same syntax as function args (ts) */
+type person = {
+  name:str, /* no default, throw error if not provided */
+  age:int?, /* Default null */
+  isAlive = true, /* Default true, type boolean inferred */
+  randomValue:str|int? = 123, /* string, int or null type allowed, default 123 */
+  dance:=>void,
+}
+any myObj = { /* any type */
   a: 1,
   b: "b",
   c: (x:int, y:int):int => x + y,
-}; // any type
+};
+var myObj:person; /* Error - name not defined */
+var myObj:person = {name: "bruh"}; /* { age: null, isAlive: true, randomValue: 123 } - all undefined args have null option or default value */
+type adult:person = { /* Extends person type */
+  job:str = "unemployed",
+  /* (...values from person) */
+}
 
-arr[0] // a
-arr[-1] // c
-arr[:-1] // [a, b]
-arr[1:-1] // [b]
-arr[1:] // [b, c]
-arr[1:2] // [b, c]
+/* Automatic value */
+str foo = "hello";
+any obj = { foo } /* same as {foo: "hello"} */
 
-obj["a"] // 1
-obj.a // 1
-obj.c(1 + 2) // 3 
+/* index */
+myObj["a"] /* 1 */
+myObj.a /* 1 */
+myObj.c(1 + 2) /* 3  */
 
-// number
-a + b // add
-a - b // subtract
-a / b // divide
-a * b // multiply
-a % b // mod
-a ^ b // power
+/* deconstruction */
+any obj = { bar: (name:str) => print("hello, #name!") }
+fun { bar } = obj;
+bar("bruh") /* hello, bruh! */
 
-// string
-a # b // concat
+/* number */
+a + b /* add */
+a - b /* subtract */
+a / b /* divide */
+a * b /* multiply */
+a % b /* mod */
+a ** b /* power */
 
-// logic
-a & b // and
-a | b // or
-!a    // not
+/* string */
+a # b /* concat */
 
-// bitwise
-a & b // and
-a | b // or
-!a    // not
-a % b // xor
-a << b // left shift
-a >> b // right shift
-a >>> b // unsigned right shift
+/* logic, bitwise */
+a & b   /* and */
+a | b   /* or */
+!a      /* not */
+a ^ b   /* xor */
+a << b  /* left shift */
+a >> b  /* right shift */
+a >>> b /* unsigned right shift */
 
-// equality
-a == b // equal
-a != b // not equal
-a < b  // less
-a > b  // greater
-a <= b // not less or equal
-a >= b // not greater or equal
+/* equality */
+a == b /* equal */
+a != b /* not equal */
+a < b  /* less */
+a > b  /* greater */
+a <= b /* not less or equal */
+a >= b /* not greater or equal */
 
-// assignment
+/* assignment */
 a = 1
-// standard (a = a - b)
-a += 1 // add assign
-a -= 1 // subtract assign
-a *= 1 // multiply assign
-a /= 1 // divide assign
-a ^= 1 // power assign
-a %= 1 // mod assign
-a #= 1 // concat assign
-// reverse (a = b - a)
-a =+ 1 // reverse add assign
-a =- 1 // reverse subtract assign
-a =* 1 // reverse multiply assign
-a =/ 1 // reverse divide assign
-a =^ 1 // reverse power assign
-a =% 1 // reverse mod assign
-a =# 1 // reverse concat assign
+/* operators (a = a - b) */
+a += 1 /* add assign */
+a -= 1 /* subtract assign */
+a *= 1 /* multiply assign */
+a /= 1 /* divide assign */
+a %= 1 /* mod assign */
+a **= 1 /* power assign */
+a #= "1" /* concat assign */
+/* increment, decrement */
+a++ /* a = a + 1 */
+a-- /* a = a - 1 */
 
-() // grouping
-[] // arrays
-{} // object, code scope
-"" // string
+() /* grouping */
+[] /* arrays */
+{} /* object, scope */
+"" /* string */
 
-print(if (1 == 2) true else false, "`n")
+/* ternary operator (same as js) */
+print((1 == 2) ? true : false, "`n")
+/* (multi line) */
+print(
+  (1 == 2)
+    ? true
+    : false,
+  "`n"
+);
 
-// Module syntax
-// Export file "Module" (only one export)
-obj Module = const { test: 123 }
-export Module // Module = Object { test: 123 }
-export {CustomName: Module} // CustomName = Object { test: 123 }
-export Module.test // test = 123
-export {CustomName: Module.test} // CustomName = 123
+/* Module syntax */
+/* not final ! */
+obj Module = const { test: 123 };
+export Module /* { test: 123 } */
+export {CustomName: Module} /* CustomName = { test: 123 } */
+export Module.test /* test = 123 */
+export {CustomName: Module.test} /* CustomName = 123 */
+/* Cannot use multiple exports */
 
-// Import file from "./Module" (First export above)
-import "./Module" // Module = Object { test: 123 }
-import "./Module" as CustomName // CustomName = Object { test:123 }
-import "./Module" as { test } // test = 123
-import "./Module" as { CustomName: test } // CustomName = 123
+/* Example: Import file from "./Module" (First export above) */
+/* Must be in first lines */
+import "./Module.qtz" /* Module = { test: 123 } */
+import CustomObjectName from "./Module.qtz" /* CustomObjectName = { test:123 } */
+import { test } from "./Module.qtz" /* test = 123 */
+import { CustomName: test } from "./Module.qtz" /* CustomName = 123 */
+import * from "./Module.qtz" /* test = 123 */
 
 obj imported = {}
-import "./Module" into imported // Adds Module to imported - imported = Object { Module: { test: 123 } }
+import "./Module" for imported /* Adds Module to imported - imported = { Module: { test: 123 } } */
+
+/* Inbuilt modules */
+/* File, Time, IO, Random */
+import ~ /* Error - cannot import basic modules like this */
+import * from ~ /* File = { <File> }, Time = { <Time> }, ect. */
+import modules from ~ /* modules = { File, Time } */
+import { File } from ~ /* File = { fs } */
+import { fileman: File } from ~ /* fileman = { <File> } */
+
+/* Chain imports */
+import
+  { fileman: File } from ~,
+  modules from ~, /* modules = { File, Time, IO } */
+  { IO } from ~, /* IO = <IO> */
+  CustomObjectName from "./Module",
+  { CustomName: test } from "./Module",
+; /* Trailing comma ignored with semicolon */
+
+/* default variable */
+$ = {
+  dir: ...,  /* Directory, excluding file */
+  path: ...,  /* Directory, including filename */
+  file: ...,  /* only filename */
+  exit: ..., /* Exit program */
+  args: ..., /* Arguments of start command */
+  version: ..., /* Quartz version */
+}
+
+/* @ symbol reserved (_, $ valid for vars) */
+
+/* switch case statement same as js */
+switch (a) {
+  case "a":
+    print("a");
+    break;
+  case "b":
+  case "c":
+    print ("a");
+    break;
+  case "d":
+    print"d"; /* no break - fall through */
+  case "e":
+    print("d or e");
+    break;
+  default:
+    print "none"
+}
