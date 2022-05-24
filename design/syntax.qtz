@@ -3,23 +3,23 @@ str a = "abc";
 a = "foo"
 a = 123 /* Error */
 var a:str = "abc" /* Alternative */
-var a = "abc" /* Error - undefined type (use any) */
+var a = "abc" /* Implied type str */
+var a /* Error - undefined type (use any or allow null) */
 int b = 123;
 int b = 123; /* Error - already declared */
 delete b; /* Remove declaration */
 float b = 12.3;
-/* (imply delete variable before redeclare for this example) */
+/* (imply delete variable before redeclare for this example file) */
 any a = "abc" /* Allows all, even null */
 a = 123 /* No error */
 /* other bases */
-int b = 0101;
-int b = x101;
+bin b = 0101b;
+hex b = 0x101;
 /* boolean */
 bool b = true;
 bool b = false;
 /* immutable with hash # */
 str #immutableString = "immutable string";
-print(immutableString);
 immutableString = "wrong"
 /* null allowed */
 str? b = "foo"; /* foo */
@@ -51,7 +51,7 @@ if (condition) {
 }
 b /* Error - not defined */
 
-str c?
+str? c
 if (condition) {
   c = "foo"
 }
@@ -71,10 +71,10 @@ for (int i = 0; i < 10; i += 1) {
     skip;
   }
   print(i, "`n");
-  str next = i + 1;
+  str next = str(i + 1); /* Same as x:str() */
   /* Quick concat */
-  print ("number #i`n") /* Default: use str() */
-  print ("number ##i`n") /* Strict: error if not string */
+  print ("number #i`n") /* Default: use str(x) */
+  print ("number ##i`n") /* Strict: error if not already a string */
   print ("number #next`n")
   print ("number #{next}`n")
   print ("number ##{str(i + 1)}`n")
@@ -128,15 +128,14 @@ fun myFunction = (x:int, y:int):int => {
 
 /* one line function */
 fun myFunction (x:int, y:int):int => x + y;
-/* Error, unnecessary equals = */
+/* Error, (unnecessary) equals `=` */
 fun myFunction = (x:int, y:int):int => x + y;
 /* anonymous */
 (x:int, y:int):int => x + y;
 /* Inline non-anonymous */
 print(myFunction(x:int, y:int):int => x + y);
 /* Inside object */
-var obj = {
-  myFunction: (x:int, y:int):int => x + y,
+obj myObj = {
   myFunction: (x:int, y:int):int => x + y,
   myFunction: (x:int, y:int):int => {
     return x + y
@@ -152,15 +151,15 @@ fun functionWithCallback(cb:=>int) => {
 /* Define args */
 fun functionWithCallback(cb(x:int, y:int):=>int) => {};
 fun functionWithCallback(cb(:int, :int):=>int) => {};
-/* :int for return here is redundant, already defined above, ignore */
+/* :int for args and return here is redundant, already defined above, ignore */
 functionWithCallback((x:int, y:int):int => {
   return x + y;
 });
 /* Alternative */
 functionWithCallback((x:int, y:int) => x + y);
-functionWithCallback(():str => "a"); /* Error, invalid return type (defined above) */
+functionWithCallback((x:float[]):str => "a"); /* Error, invalid arg and return types (defined above) */
 /* Inline non-anonymous */
-functionWithCallback(callback(x:int, y:int) => x + y)
+functionWithCallback(callback(x, y) => x + y)
 
 /* arrays */
 [str] myArray = ["a", "b", "c"];
@@ -179,8 +178,9 @@ var myArray:[str] = ["a", "b", "c"]; /* Alternative */
 myArray[0] /* a */
 myArray[-1] /* c */
 /* single item as array, with alternatives */
-myArray[0..0] /* [a] */
 myArray[:0] /* [a] */
+myArray[0..0] /* [a] */
+myArray[..0] /* [a] */
 [myArray[0]] /* [a] */
 myArray[-1..-1] /* [c] */
 myArray[-1..] /* [c] */
@@ -202,11 +202,12 @@ print(a, ", ", b, ", ", c) /* 4, 5, 6 */
 /* objects */
 /* type definition for objects, same syntax as function args (ts) */
 type person = {
-  name:str, /* no default, throw error if not provided */
-  age:int?, /* Default null */
+  name: str, /* no default, throw error if not provided */
+  age: int?, /* Default null */
   isAlive = true, /* Default true, type boolean inferred */
-  randomValue:str|int? = 123, /* string, int or null type allowed, default 123 */
-  dance:=>void,
+  randomValue: str|int? = 123, /* string, int or null type allowed, default 123 */
+  dance :=> void,
+  sayName(name: str):=> void,
 }
 obj myObj = { /* obj - any shape - whole must be object (redundent here, inferred - can use var) */
   a: 1,
@@ -220,9 +221,9 @@ type adult:person = { /* Extends person type */
   /* (...values from person) */
 }
 obj #myObj = { foo: 123 } /* Whole is immutable, items mutable */
-obj #myObj = { #foo: 123 } /* Everything immutable */
-obj ##myObj = { foo: 123 } /* Same as above, *every* item must be immutable */
 obj myObj = { #foo: 123 } /* object can be changed, not individual item */
+obj #myObj = { #foo: 123 } /* Everything immutable */
+obj ##myObj = { foo: 123 } /* Same as above, *every* item is immutable (same as making every item mutable manually) */
 
 /* Automatic value */
 str foo = "hello";
@@ -234,9 +235,11 @@ myObj.a /* 1 */
 myObj.c(1 + 2) /* 3  */
 
 /* deconstruction */
-any obj = { bar: (name:str) => print("hello, #name!") }
-fun { bar } = obj;
+any obj = { bar: (name:str) => print("hello, #name!"), foo: 123 }
+var { bar } = obj;
 bar("bruh") /* hello, bruh! */
+var { foo: FOO }
+print(FOO) /* 123 */
 
 /* number */
 a + b /* add */
@@ -267,23 +270,36 @@ a <= b /* not less or equal */
 a >= b /* not greater or equal */
 
 /* assignment */
-a = 1
+a = b
 /* operators (a = a - b) */
-a += 1 /* add assign */
-a -= 1 /* subtract assign */
-a *= 1 /* multiply assign */
-a /= 1 /* divide assign */
-a %= 1 /* mod assign */
-a **= 1 /* power assign */
-a #= "1" /* concat assign */
+a += b /* add assign */
+a -= b /* subtract assign */
+a *= b /* multiply assign */
+a /= b /* divide assign */
+a %= b /* mod assign */
+a **= b /* power assign */
+a #= b /* concat assign */
 /* increment, decrement */
-a++ /* a = a + 1 */
-a-- /* a = a - 1 */
+a++ /* a = a + b */
+a-- /* a = a - b */
 
-() /* grouping */
-[] /* arrays */
-{} /* object, scope */
-"" /* string */
+/* other (coallescing??/) */
+/* `?|` OR */
+print(1 ?| "none") /* 1 */
+print(0 ?| "none") /* none */
+/* `?&` OR */
+print((1 ?& "valid") ?| "not valid") /* valid */
+print((0 ?& "valid") ?| "not valid") /* not valid */
+var obj = { foo: "bruh" }
+print(obj[key] ?& obj[key][0] ?| "none") /* 'b' if key == "foo", else 'none' */
+/* ?. if key exists */
+print(obj?.foo ?| "none") /* bruh */
+print(obj?.bar ?| "none") /* none */
+/* ?: if property exists */
+var num = 123
+print(num?:str() ?| "none") /* '123' */
+var num = null
+print(num?:str() ?| "none") /* none */
 
 /* ternary operator (same as js) */
 print((1 == 2) ? true : false, "`n")
@@ -295,12 +311,17 @@ print(
   "`n"
 );
 
+() /* grouping */
+[] /* arrays */
+{} /* object, scope */
+"" /* string */
+
 /* Module syntax - similar to js */
 obj #Module = { test: 123, what: "abc" };
 /* Individually, multiple exports */
 export Module.test /* { test: 123 } */
 export Module.what /* { ..., what: "abc" } */
-/* Or export all of object (only once) */
+/* Or export all of object (must be the only export) */
 export default Module /* Module */
 
 /* Example: Import file from "./Module" (First export above) */
@@ -324,9 +345,9 @@ import fileman from FS /* fileman = { <FS> } */
 
 /* Chain imports */
 import
-  fileman from FS ,
+  fileman from FS, /* fileman = { <FS> } */
   IO, /* IO = <IO> */
-  *,
+  *, /* FS = { <FS> }, Time = { <Time> }, ... */
   CustomObjectName from "./Module",
   { CustomName: test } from "./Module",
 ; /* Trailing comma ignored with semicolon */
@@ -391,20 +412,22 @@ obj #$ = {
   global: {...}, /* every global variable */
   types: {...}, /* every global type */
 
-  init: ..., /* (see below) */
-  update: ...,
+  #init: ..., /* (see below) */
+  #update: ...,
 }
 
 /* run function on load, frame update */
 $.init(main():void => {
   print("function 'main' on load")
 })
+fun main():void => { ... } /* Alternative */
+$.init(main);
 $.update(update(mod):void => {
   print("fps: ", 1 / mod)
 })
 
 /* switch case statement same as js */
-switch (a) {
+switch (a) { /* Brackets optional */
   case "a":
     print("a");
     break;
@@ -424,18 +447,13 @@ switch (a) {
 /* Special characters:
 @ reseved (for docs?)
 ~ reserved (???)
-_, $ valid for vars
+` reserved other than escape string char
+_ $ valid for vars
 */
 
 /* ---------- IDEAS ----------- */
 
 /* use immutable as default ? */
-
-/* object/class prototypes - this might not work */
-str foo = "abc";
-foo:split("") /* ["a", "b", "c"] */
-foo.split("") /* error: no property 'split' (different to prototype) */
-foo:len /* 3 */
 
 /* Promises ? similar to js */
 vow MyVow(x:int):bool => {
