@@ -1,0 +1,49 @@
+import Math
+
+type rgb = {
+  r: int,
+  g: int,
+  b: int,
+}
+type hsv = {
+  h: int,
+  s: int,
+  v: int,
+}
+
+export default fun rgb2hex (rgb: rgb): hsv {
+  var {r, g, b} = rgb,
+    max = Math.max(r, g, b),
+    min = Math.min(r, g, b),
+    difference = max - min,
+    h = 0,
+    s = max == 0 ? 0 : difference / max,
+    v: max / 255;
+
+  switch max {
+    case min:
+      h = 0;
+      break;
+    case r:
+      h = g - b + difference * (g < b ? 6 : 0);
+      break;
+    case g:
+      h = b - r + difference * 2;
+      h /= 6 * difference;
+      break;
+    case b:
+      h = r - g + difference * 4;
+      h /= 6 * difference;
+      break;
+  }
+
+  h *= 360;
+  s *= 100;
+  v *= 100;
+
+  return {
+    h: Math.round(h),
+    s: Math.round(s),
+    v: Math.round(v),
+  }
+}

@@ -1,0 +1,26 @@
+import IO, Math
+
+str #chars = " .,:;l!i+?][}{1)(|tfrnvzXUQOmqdkao*#MW&8%B$@"
+int #w = 32
+int #h = Math.floor(w / 2)
+int #r = 0.4
+
+for (var y = 0; y < h; y++) {
+  for (var x = 0; x < w; x++) {
+    write(chars[
+        Math.round(
+          Math.min(
+            1,
+            1 -
+              Math.sqrt(
+                ((x / (w / 2 - 1) - 1) ** 2 + (y / (h / 2 - 1) - 1) ** 2) / 2,
+              ) /
+                r,
+          ) *
+            (chars.length - 1),
+        )
+      ] ?| " "
+    )
+  }
+  write("`n")
+}

@@ -4,12 +4,12 @@ var F = require("fortissimo");
 var filename = path.join(__dirname, "./index.qtz");
 function main() {
     var file = fs.readFileSync(filename).toString();
-    var tree = parse(file).tree;
+    var tree = group(file).tree;
     console.log(tree);
     fs.writeFileSync(path.join(__dirname, "temp/0.json"), JSON.stringify(tree, null, 2));
 }
 main();
-function parse(string, iter) {
+function group(string, iter) {
     if (iter === void 0) { iter = 0; }
     var tree = [];
     function pushBuild(string) {
@@ -27,7 +27,7 @@ function parse(string, iter) {
         if (char === "(") {
             pushBuild();
             build = "";
-            var _a = parse(string.slice(i + 1), iter + 1), branch = _a.tree, index = _a.index;
+            var _a = group(string.slice(i + 1), iter + 1), branch = _a.tree, index = _a.index;
             if (index < 1) {
                 //TODO Fix empty brackets
                 // throw "Empty brackets";

@@ -17,8 +17,10 @@ int b = x101;
 /* boolean */
 bool b = true;
 bool b = false;
-/* immutable with underscore _ */
-str _immutableString = "immutable string";
+/* immutable with hash # */
+str #immutableString = "immutable string";
+print(immutableString);
+immutableString = "wrong"
 /* null allowed */
 str? b = "foo"; /* foo */
 b = null; /* null */
@@ -26,8 +28,18 @@ b = 123 /* error */
 str? c; /* null */
 str c; /* error (no value, non-null) */
 
+/* print with newline */
+print("abc")
+/* print without newline */
+write("abc")
+/* regex same as js */
+
 /* if */
 if (a == b) {
+  print(true, "`n");
+}
+/* Brackets not needed for if, for, while, loop, switch */
+if a != b {
   print(true, "`n");
 }
 
@@ -69,11 +81,25 @@ for (int i = 0; i < 10; i += 1) {
 }
 /* for in */
 str text = "abcdef";
-for (char in text) { /* dont need int type (inferred) */
-  if (char == 4 || text[char] == "e") {
-    skip;
+for (i in text) { /* dont need int type (inferred) */
+  if (i == 4 || text[i] == "e") {
+    skip
   }
-  print (char, text[char]) /* 0, "a" ... (index is number)*/
+  print (i, text[i]) /* 0, "a" ... (index is number)*/
+}
+/* with `as` keyword */
+for i in text as char { /* dont need int type (inferred) */
+  if (i == 4 || char == "e") {
+    skip
+  }
+  print (index, char) /* 0, "a" ... (index is number)*/
+}
+/* with `as` keyword, without term before `in` */
+for in text as char {
+  if (char == "e") {
+    skip
+  }
+  print (index, char) /* 0, "a" ... (index is number)*/
 }
 /* while true */
 loop {
@@ -90,11 +116,15 @@ while (string.len < 10) {
 /* Throw error */
 throw "What!"
 
-/* function - always immutable */
+/* function - immutable without `=` after name */
 fun myFunction (x:int, y:int):int => {
   return x + y;
 }
 myFunction(1, 2); /* 3 */
+/* mutable function with `=` */
+fun myFunction = (x:int, y:int):int => {
+  return x + y;
+}
 
 /* one line function */
 fun myFunction (x:int, y:int):int => x + y;
@@ -102,6 +132,8 @@ fun myFunction (x:int, y:int):int => x + y;
 fun myFunction = (x:int, y:int):int => x + y;
 /* anonymous */
 (x:int, y:int):int => x + y;
+/* Inline non-anonymous */
+print(myFunction(x:int, y:int):int => x + y);
 /* Inside object */
 var obj = {
   myFunction: (x:int, y:int):int => x + y,
@@ -117,6 +149,9 @@ fun functionWithCallback(cb:=>int) => {
   int arg2 = 40;
   print("Callback value: ", cb(arg1, arg2));
 }
+/* Define args */
+fun functionWithCallback(cb(x:int, y:int):=>int) => {};
+fun functionWithCallback(cb(:int, :int):=>int) => {};
 /* :int for return here is redundant, already defined above, ignore */
 functionWithCallback((x:int, y:int):int => {
   return x + y;
@@ -124,6 +159,8 @@ functionWithCallback((x:int, y:int):int => {
 /* Alternative */
 functionWithCallback((x:int, y:int) => x + y);
 functionWithCallback(():str => "a"); /* Error, invalid return type (defined above) */
+/* Inline non-anonymous */
+functionWithCallback(callback(x:int, y:int) => x + y)
 
 /* arrays */
 [str] myArray = ["a", "b", "c"];
@@ -142,25 +179,25 @@ var myArray:[str] = ["a", "b", "c"]; /* Alternative */
 myArray[0] /* a */
 myArray[-1] /* c */
 /* single item as array, with alternatives */
-myArray[0:0] /* [a] */
-myArray[::0] /* [a] */
+myArray[0..0] /* [a] */
+myArray[:0] /* [a] */
 [myArray[0]] /* [a] */
-myArray[-1:-1] /* [c] */
-myArray[::-1] /* [c] */
+myArray[-1..-1] /* [c] */
+myArray[-1..] /* [c] */
 [myArray[-1]] /* [c] */
 /* multiple items */
-myArray[:-1] /* [a, b] */
-myArray[1:-1] /* [b] */
-myArray[1:] /* [b, c] */
-myArray[1:2] /* [b, c] */
+myArray[..-1] /* [a, b] */
+myArray[1..-1] /* [b] */
+myArray[1..] /* [b, c] */
+myArray[1..2] /* [b, c] */
 /* everything but index */
-myArray[:1:] /* [a, c] */
+myArray[1:] /* [a, c] */
 
 /* deconstruction */
 [int] arr = [4, 5, 6];
 int [a, b, c] = arr;
-print("#a #b #c") /* 4, 5, 6 */
-print(a, " ", b, " ", c) /* 4, 5, 6 */
+print("#a, #b, #c") /* 4, 5, 6 */
+print(a, ", ", b, ", ", c) /* 4, 5, 6 */
 
 /* objects */
 /* type definition for objects, same syntax as function args (ts) */
@@ -171,7 +208,7 @@ type person = {
   randomValue:str|int? = 123, /* string, int or null type allowed, default 123 */
   dance:=>void,
 }
-any myObj = { /* any type */
+obj myObj = { /* obj - any shape - whole must be object (redundent here, inferred - can use var) */
   a: 1,
   b: "b",
   c: (x:int, y:int):int => x + y,
@@ -182,6 +219,10 @@ type adult:person = { /* Extends person type */
   job:str = "unemployed",
   /* (...values from person) */
 }
+obj #myObj = { foo: 123 } /* Whole is immutable, items mutable */
+obj #myObj = { #foo: 123 } /* Everything immutable */
+obj ##myObj = { foo: 123 } /* Same as above, *every* item must be immutable */
+obj myObj = { #foo: 123 } /* object can be changed, not individual item */
 
 /* Automatic value */
 str foo = "hello";
@@ -208,7 +249,7 @@ a ** b /* power */
 /* string */
 a # b /* concat */
 
-/* logic, bitwise */
+/* logic, bitwise (either can work?) */
 a & b   /* and */
 a | b   /* or */
 !a      /* not */
@@ -254,54 +295,113 @@ print(
   "`n"
 );
 
-/* Module syntax */
-/* not final ! */
-obj Module = const { test: 123 };
-export Module /* { test: 123 } */
-export {CustomName: Module} /* CustomName = { test: 123 } */
-export Module.test /* test = 123 */
-export {CustomName: Module.test} /* CustomName = 123 */
-/* Cannot use multiple exports */
+/* Module syntax - similar to js */
+obj #Module = { test: 123, what: "abc" };
+/* Individually, multiple exports */
+export Module.test /* { test: 123 } */
+export Module.what /* { ..., what: "abc" } */
+/* Or export all of object (only once) */
+export default Module /* Module */
 
 /* Example: Import file from "./Module" (First export above) */
-/* Must be in first lines */
-import "./Module.qtz" /* Module = { test: 123 } */
-import CustomObjectName from "./Module.qtz" /* CustomObjectName = { test:123 } */
+/* Must be in first lines????????? */
+import "./Module.qtz" /* Module = { test: 123 } (get name from filename if no 'from') */
+import CustomObjectName from "./Module.qtz" /* CustomObjectName = { test: 123, what: "abc" } */
 import { test } from "./Module.qtz" /* test = 123 */
-import { CustomName: test } from "./Module.qtz" /* CustomName = 123 */
-import * from "./Module.qtz" /* test = 123 */
+import { CustomName: test, what } from "./Module.qtz" /* CustomName = 123, what: "abc" */
+import * from "./Module.qtz" /* test = 123, what: "abc" */
 
 obj imported = {}
-import "./Module" for imported /* Adds Module to imported - imported = { Module: { test: 123 } } */
+import "./Module" into imported /* Adds Module to imported - imported = { Module: { test: 123 } } */
+import CustomObjectName from "./Module" into imported /* imported = { CustomObjectName: { test: 123 } } */
 
 /* Inbuilt modules */
-/* File, Time, IO, Random */
-import ~ /* Error - cannot import basic modules like this */
-import * from ~ /* File = { <File> }, Time = { <Time> }, ect. */
-import modules from ~ /* modules = { File, Time } */
-import { File } from ~ /* File = { fs } */
-import { fileman: File } from ~ /* fileman = { <File> } */
+/* FS, Time, IO, Math */
+import /* Error - empty import statement */
+import * /* FS = { <FS> }, Time = { <Time> }, ... */
+import FS /* FS = { <FS> } */
+import fileman from FS /* fileman = { <FS> } */
 
 /* Chain imports */
 import
-  { fileman: File } from ~,
-  modules from ~, /* modules = { File, Time, IO } */
-  { IO } from ~, /* IO = <IO> */
+  fileman from FS ,
+  IO, /* IO = <IO> */
+  *,
   CustomObjectName from "./Module",
   { CustomName: test } from "./Module",
 ; /* Trailing comma ignored with semicolon */
 
-/* default variable */
-$ = {
-  dir: ...,  /* Directory, excluding file */
-  path: ...,  /* Directory, including filename */
-  file: ...,  /* only filename */
-  exit: ..., /* Exit program */
-  args: ..., /* Arguments of start command */
-  version: ..., /* Quartz version */
+/* standard modules */
+/* FS (rename?) */
+obj ##FS = {
+  File: {
+    read: ():string => { ... }, /* Change to bytes? */
+    write: (text:string):void => { ... },
+    close: ():void => { ... },
+  },
+
+  open: (path:string):self.File => { ... },
+  read: (path:string):string => {
+    var file = FS.open(path)
+    str text = file.read()
+    file.close()
+    return text
+  },
+  write: (path:string, text:string):void => {
+    var file = FS.open(path)
+    file.write(text)
+    file.close()
+  },
+}
+var file = FS.open("foo.txt")
+file.read() /* content */
+file.close()
+FS.read("foo.txt") /* content */
+/* Time */
+obj ##Time = {
+  now: ():int => { ... },
+}
+/* IO */
+obj ##IO = {
+  waitFor: (prompt:string):string => { ... },
+}
+/* Math */
+obj ##Math = {
+  PI: 3.14...,
+  floor, ceil, round, min, max, clamp, sqrt,
+  random: ():int => { ... },
+  randomFloat: (min: int, max: int):int => self.random() * (max - min) + min,
+  randomInt: (min: int, max: int):int => self.floor(self.randomFloat(min, max)),
+  randomChoice: (value: string|[any]):any => value[self.randomInt(0, value:len)],
+}
+/* JSON */
+obj ##JSON = {
+  parse: (string:str):any => { ... },
+  stringify: (obj:any):str => { ... },
 }
 
-/* @ symbol reserved (_, $ valid for vars) */
+/* default variable */
+obj #$ = {
+  #dir: ...,  /* Directory, excluding file */
+  #path: ...,  /* Directory, including filename */
+  #file: ...,  /* only filename */
+  #exit: ..., /* Exit program */
+  #args: ..., /* Arguments of start command */
+  #version: ..., /* Quartz version */
+  global: {...}, /* every global variable */
+  types: {...}, /* every global type */
+
+  init: ..., /* (see below) */
+  update: ...,
+}
+
+/* run function on load, frame update */
+$.init(main():void => {
+  print("function 'main' on load")
+})
+$.update(update(mod):void => {
+  print("fps: ", 1 / mod)
+})
 
 /* switch case statement same as js */
 switch (a) {
@@ -320,3 +420,28 @@ switch (a) {
   default:
     print "none"
 }
+
+/* Special characters:
+@ reseved (for docs?)
+~ reserved (???)
+_, $ valid for vars
+*/
+
+/* ---------- IDEAS ----------- */
+
+/* use immutable as default ? */
+
+/* object/class prototypes - this might not work */
+str foo = "abc";
+foo:split("") /* ["a", "b", "c"] */
+foo.split("") /* error: no property 'split' (different to prototype) */
+foo:len /* 3 */
+
+/* Promises ? similar to js */
+vow MyVow(x:int):bool => {
+  ..., /* Wait for something */
+  resolve(x < 5)
+}
+bool response = await MyVow(5)
+
+/* `with` (python)  ????? possibly unnecessary */

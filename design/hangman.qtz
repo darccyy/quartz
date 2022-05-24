@@ -1,21 +1,17 @@
-import { File, IO, Random, Math } from ~
+import FS, IO, Math
 
 print("`n=== Hangman ===")
-str words = File.read("words.txt").str().split("`r`n")
+str #words = FS.read("words.txt"):split(/`r?`n/)
 
 loop {
-  str word = words[Math.floor(Random.decimal() * words.len)]
+  str #word = Random.choice(words)
   str correct = ""
   str incorrect = ""
 
   loop {
     str show = ""
-    for i in word {
-      if correct.has(word[i]) {
-        show #= word[i]
-      } else {
-        show #= "_"
-      }
+    for in word as char {
+      show #= correct:has(char) ? char : "_"
     }
 
     if show == word {
@@ -25,19 +21,19 @@ loop {
 
     print("`n#show`nChances: #{6 - incorrect.len}`nCorrect: #correct`nIncorrect: #incorrect")
 
-    str? _guess = IO.WaitFor("Guess: ")
+    str? #guess = IO.waitFor("Guess: ")
 
-    if word.has(_guess) {
-      if !correct.has(_guess) {
-        correct #= _guess
+    if word.has(guess) {
+      if !correct:has(guess) {
+        correct #= guess
       }
     } else {
-      if !incorrect.has(_guess) {
-        incorrect #= _guess
+      if !incorrect:has(guess) {
+        incorrect #= guess
       }
     }
 
-    if incorrect.len >= 6 {
+    if incorrect:len >= 6 {
       print("`n========`n  LOSS`n========")
       break
     }

@@ -6,7 +6,7 @@ const filename = path.join(__dirname, "./index.qtz");
 
 function main(): void {
   const file = fs.readFileSync(filename).toString();
-  var { tree } = parse(file);
+  var { tree } = group(file);
   console.log(tree);
   fs.writeFileSync(
     path.join(__dirname, "temp/0.json"),
@@ -15,11 +15,11 @@ function main(): void {
 }
 main();
 
-type parsed = {
+type groups = {
   tree: any[];
   index: number;
 };
-function parse(string: string, iter: number = 0): parsed {
+function group(string: string, iter: number = 0): groups {
   var tree = [];
 
   function pushBuild(string = build): void {
@@ -38,7 +38,7 @@ function parse(string: string, iter: number = 0): parsed {
     if (char === "(") {
       pushBuild();
       build = "";
-      var { tree: branch, index } = parse(string.slice(i + 1), iter + 1);
+      var { tree: branch, index } = group(string.slice(i + 1), iter + 1);
 
       if (index < 1) {
         //TODO Fix empty brackets
